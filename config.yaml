@@ -1,0 +1,96 @@
+adafruit-io-key: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+namespace: "herbs"
+
+devices:
+  meteo:
+    active: true
+    type: yocto-meteo
+    sensor-id: METEOMK1-A76EA
+    polling-interval: 10  # seconds
+    measurements:
+      temperature:
+        type: yocto-temperature
+        channel: .temperature
+      pressure:
+        type: yocto-pressure
+        channel: .pressure
+      humidity:
+        type: yocto-humidity
+        channel: .humidity
+  relay:
+    active: false
+    type: yocto-maxipowerrelay
+    polling-interval: 10  # seconds
+    sensor-id: MXPWRRLY-A65F9
+    measurements:
+      light-right:
+        type: yocto-relay
+        channel: .relay1
+      pump-right:
+        type: yocto-relay
+        channel: .relay2
+      empty:
+        type: yocto-relay
+        channel: .relay3
+      pump-left:
+        type: yocto-relay
+        channel: .relay4
+      light-left:
+        type: yocto-relay
+        channel: .relay5
+  light-left:
+    active: true
+    sensor-id: LIGHTMK3-A7BA5
+    type: yocto-light-v3
+    polling-interval: 10 # seconds
+    measurements:
+      lux:
+        type: yocto-light
+        channel: .lightSensor
+  light-right:
+    active: true
+    sensor-id: LIGHTMK3-A7B78
+    type: yocto-light-v3
+    polling-interval: 10 # seconds
+    measurements:
+      lux:
+        type: yocto-light
+        channel: .lightSensor
+  rangefinder:
+    type: yocto-rangefinder
+    sensor-id: YRNGFND1-9B2DB
+    polling-interval: 10
+    measurements:
+      distance:
+        type: yocto-distance
+        channel: .rangeFinder1
+      temperature:
+        type: yocto-temperature
+        channel: .temperature1
+      infra-red:
+        type: yocto-light
+        channel: .lightSensor1
+  chirp-left:
+    active: true
+    type: chirp
+    sensor-id: 0x45
+    calibration:
+      min-moist: 268
+      max-moist: 654
+    polling-interval: 10  # seconds
+    measurements:
+      # soil-moist: chirp-moist
+      soil-moist-percent: chirp-moist-percent
+      temperature: chirp-temperature
+  chirp-right:
+    active: true
+    type: chirp
+    sensor-id: 0x20
+    calibration:
+      min-moist: 263
+      max-moist: 635
+    polling-interval: 10  # seconds
+    measurements:
+      # soil-moist: chirp-moist
+      soil-moist-percent: chirp-moist-percent
+      temperature: chirp-temperature
