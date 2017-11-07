@@ -109,17 +109,28 @@ def main():
 
     sensor_namespace = config["namespace"]
 
+    mqtt = MQTTClient(config["adafruit-io-user"], config["adafruit-io-key"])
+    relays = dict()
+    for dev_name, device_config in config["devices"].items():
+        if "active" in  device_config and device_config["active"]:
+            dev_type = device_config["type"]
+            if dev_type == "yocto-maxipowerrelay":
+                relays.update(configure_yocto(dev_name, device_config, sensor_namespace, mqtt))
+
+    setup_mqtt_listeners(relays, mqtt)
+    # at this point we're connected and running
+
     for dev_name, device_config in config["devices"].items():
         if "active" in  device_config and device_config["active"]:
             dev_type = device_config["type"]
             if dev_type == "chirp":
                 try:
-                    configure_chirp(dev_name, device_config, sensor_namespace, client)
+                    configure_chirp(dev_name, device_config, sensor_namespace, mqtt)
                 except:
                     logging.error("There was an exception when registering chirp device %s", dev_name, exc_info=True)
             elif dev_type.startswith("yocto"):
                 try:
-                    configure_yocto(dev_name, device_config, sensor_namespace, client)
+                    configure_yocto(dev_name, device_config, sensor_namespace, mqtt)
                 except:
                     logging.error("There was an exception when registering generic device %s", dev_name, exc_info=True)
             else:
@@ -129,18 +140,6 @@ def main():
             continue
     logging.info("------- Registered all devices -------")
 
-
-    mqtt = MQTTClient(config["adafruit-io-user"], config["adafruit-io-key"])
-    relays = dict()
-    for dev_name, device_config in config["devices"].items():
-        if "active" in  device_config and device_config["active"]:
-            dev_type = device_config["type"]
-            if dev_type == "yocto-maxipowerrelay":
-                relays.update(configure_yocto(dev_name, device_config, sensor_namespace, client))
-
-    setup_mqtt_listeners(relays, mqtt)
-
-    logging.info("------- Finished execution -------")
 
 if __name__ == "__main__":
     main()

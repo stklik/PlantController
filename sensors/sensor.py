@@ -16,7 +16,7 @@ class Sensor(Thread):
         if self.client:
             logging.debug("Sending sensordata (%s) to feed %s : Value = %s", self.sensor_id, self.feedname, value)
             try:
-                self.client.send(self.feedname, value)
+                self.client.publish(self.feedname, value)
             except:
                 logging.error("Error when sending value %s (type: %s) to feed %s", value, type(value), self.feedname, exc_info=True)
         else:
