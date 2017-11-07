@@ -47,6 +47,6 @@ class ChirpSensor(Sensor):
             val = value[config]
             if self.client:
                 logging.debug("Sending sensordata (%s) to feed %s : Value = %s", self.sensor_id, feedname, val)
-                self.client.send(feedname, val)
+                self.client.publish(feedname, val)
             else:
                 logging.debug("No client configured - sensor %s read value %s", feedname, val)
