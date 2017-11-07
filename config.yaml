@@ -19,7 +19,7 @@ devices:
         type: yocto-humidity
         channel: .humidity
   relay:
-    active: false
+    active: true
     type: yocto-maxipowerrelay
     polling-interval: 10  # seconds
     sensor-id: MXPWRRLY-A65F9
