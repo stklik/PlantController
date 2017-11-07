@@ -15,7 +15,10 @@ class Sensor(Thread):
     def send_data(self, value=None):
         if self.client:
             logging.debug("Sending sensordata (%s) to feed %s : Value = %s", self.sensor_id, self.feedname, value)
-            self.client.send(self.feedname, value)
+            try:
+                self.client.send(self.feedname, value)
+            except:
+                logging.error("Error when sending value %s (type: %s) to feed %s", value, type(value), self.feedname, exc_info=True)
         else:
             logging.debug("No client configured - sensor %s read value: %s", self.feedname, value)
 

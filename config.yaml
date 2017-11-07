@@ -7,7 +7,7 @@ devices:
     active: true
     type: yocto-meteo
     sensor-id: METEOMK1-A76EA
-    polling-interval: 10  # seconds
+    polling-interval: 30  # seconds
     measurements:
       temperature:
         type: yocto-temperature
@@ -21,7 +21,7 @@ devices:
   relay:
     active: false
     type: yocto-maxipowerrelay
-    polling-interval: 10  # seconds
+    polling-interval: 30  # seconds
     sensor-id: MXPWRRLY-A65F9
     measurements:
       light-right:
@@ -43,7 +43,7 @@ devices:
     active: true
     sensor-id: LIGHTMK3-A7BA5
     type: yocto-light-v3
-    polling-interval: 10 # seconds
+    polling-interval: 30 # seconds
     measurements:
       lux:
         type: yocto-light
@@ -52,7 +52,7 @@ devices:
     active: true
     sensor-id: LIGHTMK3-A7B78
     type: yocto-light-v3
-    polling-interval: 10 # seconds
+    polling-interval: 30 # seconds
     measurements:
       lux:
         type: yocto-light
@@ -60,7 +60,7 @@ devices:
   rangefinder:
     type: yocto-rangefinder
     sensor-id: YRNGFND1-9B2DB
-    polling-interval: 10
+    polling-interval: 30
     measurements:
       distance:
         type: yocto-distance
@@ -78,7 +78,7 @@ devices:
     calibration:
       min-moist: 268
       max-moist: 654
-    polling-interval: 10  # seconds
+    polling-interval: 30  # seconds
     measurements:
       # soil-moist: chirp-moist
       soil-moist-percent: chirp-moist-percent
@@ -90,7 +90,7 @@ devices:
     calibration:
       min-moist: 263
       max-moist: 635
-    polling-interval: 10  # seconds
+    polling-interval: 30  # seconds
     measurements:
       # soil-moist: chirp-moist
       soil-moist-percent: chirp-moist-percent
