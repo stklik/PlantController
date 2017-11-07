@@ -1,7 +1,7 @@
 import sys
 import yaml
 import logging
-from Adafruit_IO import Client
+from Adafruit_IO import Client, MQTTClient
 from sensors.yoctosensor import *
 from sensors.chirpsensor import ChirpSensor
 
