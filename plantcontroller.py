@@ -42,19 +42,19 @@ def configure_chirp(name, config, namespace="", client=None):
 
 def configure_yocto(name, config, namespace="", client=None):
     logging.debug("Registering Yocto %s", name)
+    sensors = {}
     if "measurements" in config:
         for measurement, m_config in config["measurements"].items():
             logging.debug("Registering measurement %s on Yocto %s", measurement, name)
             m_type = m_config["type"]
-            m_channel = m_config["channel"]
             klass = type_to_class.get(m_type, None)
             if klass:
                 obj = klass(
                     name=name,
                     sensor_id=config["sensor-id"],
-                    feedname="{}---{}-{}".format(namespace, name, measurement),
+                    feedname="{}---{}-{}".format(namespace, name, measurement+m_config.get("channel", "")).replace(".", "_"),
                     interval=config["polling-interval"],
-                    channel=m_channel,
+                    channel=m_config.get("channel", None),
                     client=client
                 )
                 if obj.sensor.isOnline():
@@ -62,6 +62,7 @@ def configure_yocto(name, config, namespace="", client=None):
                     obj.start()
                 else:
                     logging.error("Sensor %s on device %s is not online. Not starting measurements.", measurement, name)
+                sensors["{}-{}".format(name, measurement)] = obj
             else:
                 logging.warn("Couldn't find correct measurement-class for type: %s", m_type, exc_info=True)
     else:
@@ -69,6 +70,36 @@ def configure_yocto(name, config, namespace="", client=None):
         print(config)
         sys.exit(0)
 
+    return sensors
+
+def setup_mqtt_listeners(devices, mqtt):
+    mqtt.user_data = devices
+    def connected(client):
+        for name, device in devices.items():
+            logging.debug("MQTT: Subscribing to feed %s", device.feedname)
+            client.subscribe(device.feedname)
+        logging.info("MQTT: Connected to Adafruit-IO")
+
+    def disconnect(client):
+        logging.info("MQTT: Disconnected from Adafruit-IO")
+
+    def message(client, feed_id, payload):
+        devices = mqtt.user_data
+        feedname_to_device = {device.feedname : device for name, device in devices.items()}
+
+        device = feedname_to_device.get(feed_id, None)
+        if device:
+            device.write(payload)
+        else:
+            logging.warn("MQTT: received a message for feed %s but nobody subscribed to it.", feed_id)
+
+    mqtt.on_connect = connected
+    mqtt.on_disconnect = disconnect
+    mqtt.on_message = message
+    mqtt.connect()
+
+    # blocking loop...
+    mqtt.loop_background()
 
 def main():
     config = get_config()
@@ -97,6 +128,21 @@ def main():
             logging.info("Skipping device %s because it is not active", dev_name)
             continue
     logging.info("------- Registered all devices -------")
+
+    measure = threading.Thread(target=run_loop, args=[sensors])
+    measure.start()
+
+    mqtt = MQTTClient(config["adafruit-io-user"], config["adafruit-io-key"])
+    relays = dict()
+    for dev_name, device_config in config["devices"].items():
+        if "active" in  device_config and device_config["active"]:
+            dev_type = device_config["type"]
+            if dev_type == "yocto-maxipowerrelay":
+                relays.update(configure_yocto(dev_name, device_config, sensor_namespace, client))
+
+    setup_mqtt_listeners(relays, mqtt)
+
+    logging.info("------- Finished execution -------")
 
 if __name__ == "__main__":
     main()

@@ -18,15 +18,17 @@ class YoctoSensor(Sensor):
         if YAPI.RegisterHub("usb", errmsg) != YAPI.SUCCESS:
             print("YoctoAPI.RegisterHub init error" + errmsg.value)
         self.channel = kwargs.get("channel", "")
-        self.feedname += self.channel
         self.init_sensor()
         if not self.sensor.isOnline():
             logging.error('Device %s (Sensor-id: %s) not connected', self.name, self.sensor_id)
         else:
             logging.info('Device %s (Sensor-id: %s) connected', self.name, self.sensor_id)
 
+    def ready(self):
+        return self.sensor.isOnline()
+
     def measure(self):
-        if not self.sensor.isOnline():
+        if not self.ready():
             logging.debug('Device %s not connected' % self.sensor_id)
             return None
         else:
@@ -60,9 +62,22 @@ class YoctoRelay(YoctoSensor):
         self.sensor = YRelay.FindRelay(self.sensor_id + self.channel)
 
     def measure(self):
-        if not self.sensor.isOnline():
+        if not self.ready():
             logging.debug('Relay %s%s not connected', self.sensor_id, self.channel)
             return None
         else:
             logging.debug("Relay %s%s reading data", self.sensor_id, self.channel)
             return self.sensor.get_state()
+
+    def write(self, value):
+        logging.debug("Writing %s to sensor %s%s", value, self.sensor_id, self.channel)
+        if self.ready():
+            if value in [0, False, "false", "False", "FALSE", "OFF", "Off", "off", "0"]:
+                self.sensor.set_state(YRelay.OUTPUT_OFF)
+            else:
+                self.sensor.set_state(YRelay.OUTPUT_ON)
+
+    def send_data(self, value=None):
+        if type(value) == bool:
+            value = 1 if value else 0
+        super().send_data(value)

@@ -1,4 +1,5 @@
-adafruit-io-key: "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+adafruit-io-key: ADAFRUIT_API_KEY
+adafruit-io-user: ADAFRUIT_USERNAME
 namespace: "herbs"
 
 devices:

@@ -1,24 +1,33 @@
 import logging
 from sensors.sensor import Sensor
 
-from lib.chirp.chirp import Chirp
+try:
+    from lib.chirp.chirp import Chirp
+except ModuleNotFoundError:
+    logging.error("Error when importing Chirp. Check whether you're on the RPi")
 
 class ChirpSensor(Sensor):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.measurements = kwargs["measurements"]
-        self.sensor = Chirp(
-            address=kwargs["sensor_id"],
-            read_moist=True,
-            read_temp=True,
-            read_light=False,
-            min_moist=kwargs.get("min_moist", False),
-            max_moist=kwargs.get("max_moist", False),
-            temp_scale='celsius',
-            temp_offset=0
-            )
+        try:
+            self.sensor = Chirp(
+                address=kwargs["sensor_id"],
+                read_moist=True,
+                read_temp=True,
+                read_light=False,
+                min_moist=kwargs.get("min_moist", False),
+                max_moist=kwargs.get("max_moist", False),
+                temp_scale='celsius',
+                temp_offset=0
+                )
+        except NameError:
+            logging.error("Couldn't init Chirp %s - class Chirp is not available.", self.sensor_id)
+            self.sensor = None
 
+    def ready(self):
+        return self.sensor != None
 
     def measure(self):
         if not self.sensor:
@@ -34,7 +43,6 @@ class ChirpSensor(Sensor):
 
     def send_data(self, value=None):
         for name, config in self.measurements.items():
-
             feedname = self.feedname + "-" + name
             val = value[config]
             if self.client:
