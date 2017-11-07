@@ -106,9 +106,9 @@ def main():
     api_key = config["adafruit-io-key"]
     logging.info("Starting an Adafruit client with API-Key %s", api_key)
     client = Client(api_key)
-    
+
     sensor_namespace = config["namespace"]
-    
+
     for dev_name, device_config in config["devices"].items():
         if "active" in  device_config and device_config["active"]:
             dev_type = device_config["type"]
@@ -129,8 +129,6 @@ def main():
             continue
     logging.info("------- Registered all devices -------")
 
-    measure = threading.Thread(target=run_loop, args=[sensors])
-    measure.start()
 
     mqtt = MQTTClient(config["adafruit-io-user"], config["adafruit-io-key"])
     relays = dict()
