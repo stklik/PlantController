@@ -19,10 +19,6 @@ class YoctoSensor(Sensor):
             print("YoctoAPI.RegisterHub init error" + errmsg.value)
         self.channel = kwargs.get("channel", "")
         self.init_sensor()
-        if not self.sensor.isOnline():
-            logging.error('Device %s (Sensor-id: %s) not connected', self.name, self.sensor_id)
-        else:
-            logging.info('Device %s (Sensor-id: %s) connected', self.name, self.sensor_id)
 
     def ready(self):
         return self.sensor.isOnline()
@@ -33,9 +29,6 @@ class YoctoSensor(Sensor):
             return None
         else:
             return self.sensor.get_currentValue()
-    
-    def sleep(self, interval):
-        YAPI.Sleep(interval * 1000)
 
 class YoctoHumidity(YoctoSensor):
     def init_sensor(self):
