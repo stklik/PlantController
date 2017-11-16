@@ -112,10 +112,9 @@ def main():
     mqtt = MQTTClient(config["adafruit-io-user"], config["adafruit-io-key"])
     relays = dict()
     for dev_name, device_config in config["devices"].items():
-        if "active" in  device_config and device_config["active"]:
-            dev_type = device_config["type"]
-            if dev_type == "yocto-maxipowerrelay":
-                relays.update(configure_yocto(dev_name, device_config, sensor_namespace, mqtt))
+        dev_type = device_config["type"]
+        if dev_type == "yocto-maxipowerrelay":
+            relays.update(configure_yocto(dev_name, device_config, sensor_namespace, mqtt))
 
     setup_mqtt_listeners(relays, mqtt)
     # at this point we're connected and running
