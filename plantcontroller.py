@@ -26,7 +26,7 @@ def get_config():
         config = yaml.load(configfile)
         return config
 
-def configure_chirp(name, config, namespace="", client=None):
+def configure_chirp(name, config, namespace="", client=None, start=True):
     logging.debug("Registering Chirp %s", name)
     obj = ChirpSensor(
         name=name,
@@ -38,9 +38,10 @@ def configure_chirp(name, config, namespace="", client=None):
         max_moist=config["calibration"]["max-moist"],
         measurements = config["measurements"]
     )
-    obj.start()
+    if start:
+        obj.start()
 
-def configure_yocto(name, config, namespace="", client=None):
+def configure_yocto(name, config, namespace="", client=None, start=True):
     logging.debug("Registering Yocto %s", name)
     sensors = {}
     if "measurements" in config:
@@ -59,7 +60,8 @@ def configure_yocto(name, config, namespace="", client=None):
                 )
                 if obj.sensor.isOnline():
                     logging.info("Starting thread for sensor %s on device %s", measurement, name)
-                    obj.start()
+                    if start:
+                        obj.start()
                 else:
                     logging.error("Sensor %s on device %s is not online. Not starting measurements.", measurement, name)
                 sensors["{}-{}".format(name, measurement)] = obj
@@ -114,7 +116,7 @@ def main():
     for dev_name, device_config in config["devices"].items():
         dev_type = device_config["type"]
         if dev_type == "yocto-maxipowerrelay":
-            relays.update(configure_yocto(dev_name, device_config, sensor_namespace, mqtt))
+            relays.update(configure_yocto(dev_name, device_config, sensor_namespace, mqtt, start=False))
 
     setup_mqtt_listeners(relays, mqtt)
     # at this point we're connected and running
